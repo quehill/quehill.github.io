@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Source Catalog</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .search-filter-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            animation: slideUp 0.8s ease-out 0.4s both;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 50px;
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: white;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            animation: fadeIn 1s ease-out 0.6s both;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .project-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .project-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .project-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            margin-right: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .project-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .project-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .project-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .project-link {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .link-github {
+            background: #333;
+            color: white;
+        }
+
+        .link-demo {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .project-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            font-size: 1.2rem;
+            margin: 50px 0;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+            
+            .filter-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Open Source Catalog</h1>
+            <p class="subtitle">Discover amazing open source projects from the community</p>
+        </header>
+
+        <div class="search-filter-section">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search projects, technologies, or descriptions...">
+                <div class="search-icon">🔍</div>
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-category="all">All Projects</button>
+                <button class="filter-btn" data-category="web">Web Development</button>
+                <button class="filter-btn" data-category="mobile">Mobile</button>
+                <button class="filter-btn" data-category="devtools">Developer Tools</button>
+                <button class="filter-btn" data-category="ai">AI/ML</button>
+                <button class="filter-btn" data-category="system">System Tools</button>
+            </div>
+        </div>
+
+        <div class="projects-grid" id="projectsGrid">
+            <!-- Projects will be rendered here -->
+        </div>
+
+        <div class="no-results" id="noResults" style="display: none;">
+            <p>No projects found matching your criteria.</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Try adjusting your search or filters.</p>
+        </div>
+    </div>
+
+    <script>
+        const projects = [
+            {
+                id: 1,
+                name: "React",
+                description: "A JavaScript library for building user interfaces with component-based architecture and virtual DOM for optimal performance.",
+                category: "web",
+                icon: "⚛️",
+                iconColor: "#61DAFB",
+                stars: "220k",
+                forks: "45k",
+                language: "JavaScript",
+                tags: ["Frontend", "UI Library", "Components", "Virtual DOM"],
+                github: "https://github.com/facebook/react",
+                demo: "https://react.dev"
+            },
+            {
+                id: 2,
+                name: "VS Code",
+                description: "Free, open-source code editor with intelligent code completion, debugging, and built-in Git integration.",
+                category: "devtools",
+                icon: "📝",
+                iconColor: "#007ACC",
+                stars: "158k",
+                forks: "28k",
+                language: "TypeScript",
+                tags: ["Editor", "IDE", "IntelliSense", "Extensions"],
+                github: "https://github.com/microsoft/vscode",
+                demo: "https://code.visualstudio.com"
+            },
+            {
+                id: 3,
+                name: "TensorFlow",
+                description: "Open-source machine learning framework for building and deploying ML models across platforms and devices.",
+                category: "ai",
+                icon: "🧠",
+                iconColor: "#FF6F00",
+                stars: "185k",
+                forks: "74k",
+                language: "Python",
+                tags: ["Machine Learning", "Deep Learning", "AI", "Neural Networks"],
+                github: "https://github.com/tensorflow/tensorflow",
+                demo: "https://tensorflow.org"
+            },
+            {
+                id: 4,
+                name: "Flutter",
+                description: "UI toolkit for building natively compiled applications for mobile, web, and desktop from a single codebase.",
+                category: "mobile",
+                icon: "📱",
+                iconColor: "#02569B",
+                stars: "164k",
+                forks: "27k",
+                language: "Dart",
+                tags: ["Cross-platform", "Mobile", "UI Toolkit", "Native Performance"],
+                github: "https://github.com/flutter/flutter",
+                demo: "https://flutter.dev"
+            },
+            {
+                id: 5,
+                name: "Docker",
+                description: "Platform for developing, shipping, and running applications using containerization technology.",
+                category: "system",
+                icon: "🐳",
+                iconColor: "#2496ED",
+                stars: "68k",
+                forks: "18k",
+                language: "Go",
+                tags: ["Containerization", "DevOps", "Deployment", "Microservices"],
+                github: "https://github.com/docker/docker-ce",
+                demo: "https://docker.com"
+            },
+            {
+                id: 6,
+                name: "Vue.js",
+                description: "Progressive JavaScript framework for building user interfaces with an approachable, versatile core library.",
+                category: "web",
+                icon: "💚",
+                iconColor: "#4FC08D",
+                stars: "207k",
+                forks: "34k",
+                language: "JavaScript",
+                tags: ["Frontend", "Progressive", "Component-based", "Reactive"],
+                github: "https://github.com/vuejs/vue",
+                demo: "https://vuejs.org"
+            },
+            {
+                id: 7,
+                name: "Kubernetes",
+                description: "Container orchestration system for automating deployment, scaling, and management of containerized applications.",
+                category: "system",
+                icon: "☸️",
+                iconColor: "#326CE5",
+                stars: "108k",
+                forks: "39k",
+                language: "Go",
+                tags: ["Orchestration", "Containers", "Cloud Native", "Scalability"],
+                github: "https://github.com/kubernetes/kubernetes",
+                demo: "https://kubernetes.io"
+            },
+            {
+                id: 8,
+                name: "Jupyter",
+                description: "Interactive development environment for creating and sharing documents with live code, equations, and visualizations.",
+                category: "devtools",
+                icon: "📊",
+                iconColor: "#F37626",
+                stars: "11k",
+                forks: "4k",
+                language: "Python",
+                tags: ["Data Science", "Interactive", "Notebooks", "Visualization"],
+                github: "https://github.com/jupyter/jupyter",
+                demo: "https://jupyter.org"
+            },
+            {
+                id: 9,
+                name: "PyTorch",
+                description: "Machine learning library providing tensor computation with GPU acceleration and deep neural networks.",
+                category: "ai",
+                icon: "🔥",
+                iconColor: "#EE4C2C",
+                stars: "79k",
+                forks: "21k",
+                language: "Python",
+                tags: ["Deep Learning", "Research", "Dynamic Graphs", "GPU Computing"],
+                github: "https://github.com/pytorch/pytorch",
+                demo: "https://pytorch.org"
+            },
+            {
+                id: 10,
+                name: "React Native",
+                description: "Framework for building native mobile applications using React and JavaScript with native platform capabilities.",
+                category: "mobile",
+                icon: "📲",
+                iconColor: "#61DAFB",
+                stars: "117k",
+                forks: "24k",
+                language: "JavaScript",
+                tags: ["Mobile Development", "Cross-platform", "Native Performance", "React"],
+                github: "https://github.com/facebook/react-native",
+                demo: "https://reactnative.dev"
+            },
+            {
+                id: 11,
+                name: "Git",
+                description: "Distributed version control system for tracking changes in source code during software development.",
+                category: "devtools",
+                icon: "🌿",
+                iconColor: "#F05032",
+                stars: "51k",
+                forks: "25k",
+                language: "C",
+                tags: ["Version Control", "Distributed", "Source Code", "Collaboration"],
+                github: "https://github.com/git/git",
+                demo: "https://git-scm.com"
+            },
+            {
+                id: 12,
+                name: "Node.js",
+                description: "JavaScript runtime built on Chrome's V8 engine for building scalable network applications and server-side development.",
+                category: "web",
+                icon: "🟢",
+                iconColor: "#339933",
+                stars: "105k",
+                forks: "28k",
+                language: "JavaScript",
+                tags: ["Backend", "Server-side", "JavaScript Runtime", "Event-driven"],
+                github: "https://github.com/nodejs/node",
+                demo: "https://nodejs.org"
+            }
+        ];
+
+        let filteredProjects = [...projects];
+        let currentCategory = 'all';
+        let currentSearch = '';
+
+        function renderProjects() {
+            const grid = document.getElementById('projectsGrid');
+            const noResults = document.getElementById('noResults');
+
+            if (filteredProjects.length === 0) {
+                grid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            grid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            grid.innerHTML = filteredProjects.map(project => `
+                <div class="project-card" style="animation-delay: ${Math.random() * 0.5}s">
+                    <div class="project-header">
+                        <div class="project-icon" style="background: ${project.iconColor}">
+                            ${project.icon}
+                        </div>
+                        <h3 class="project-title">${project.name}</h3>
+                    </div>
+                    <p class="project-description">${project.description}</p>
+                    <div class="project-tags">
+                        ${project.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="project-stats">
+                        <div class="stat">
+                            <span>⭐</span>
+                            <span>${project.stars}</span>
+                        </div>
+                        <div class="stat">
+                            <span>🍴</span>
+                            <span>${project.forks}</span>
+                        </div>
+                        <div class="stat">
+                            <span>💻</span>
+                            <span>${project.language}</span>
+                        </div>
+                    </div>
+                    <div class="project-links">
+                        <a href="${project.github}" class="project-link link-github" target="_blank">
+                            GitHub
+                        </a>
+                        <a href="${project.demo}" class="project-link link-demo" target="_blank">
+                            Visit Site
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterProjects() {
+            filteredProjects = projects.filter(project => {
+                const matchesCategory = currentCategory === 'all' || project.category === currentCategory;
+                const matchesSearch = currentSearch === '' || 
+                    project.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    project.description.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                    project.tags.some(tag => tag.toLowerCase().includes(currentSearch.toLowerCase())) ||
+                    project.language.toLowerCase().includes(currentSearch.toLowerCase());
+                
+                return matchesCategory && matchesSearch;
+            });
+            
+            renderProjects();
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            filterProjects();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelector('.filter-btn.active').classList.remove('active');
+                btn.classList.add('active');
+                currentCategory = btn.dataset.category;
+                filterProjects();
+            });
+        });
+
+        // Initial render
+        renderProjects();
+
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const cards = document.querySelectorAll('.project-card');
+            
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            });
+            
+            cards.forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
